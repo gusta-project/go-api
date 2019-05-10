@@ -1,0 +1,30 @@
+version: '2.1' # 2.1 is important for the depends_on condition
+services:
+#  api:
+#    build: .
+#    container_name: flavor2go
+#    ports:
+#      - 3000:3000
+#    links:
+#      - postgres
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+
+  postgres:
+    image: postgres:latest
+    # if the db takes too long to startup and the API is too fast,
+    # here is how we can ensure the db to be up
+    # https://github.com/docker/compose/issues/374
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U gusta"
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=gusta
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_DB=gusta
+    ports:
+      - 5432:5432
