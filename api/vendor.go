@@ -35,6 +35,7 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
+	// uuid from URL > uuid from body
 	if vars["uuid"] != "" {
 		vendor.UUID = vars["uuid"]
 	}

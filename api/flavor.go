@@ -36,6 +36,7 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
+	// uuid from URL > uuid from body
 	if vars["uuid"] != "" {
 		flavor.UUID = vars["uuid"]
 	}

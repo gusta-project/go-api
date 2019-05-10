@@ -9,6 +9,7 @@ import (
 )
 
 // Flavor struct
+// Only the Vendor requires the gorm hints for preloading
 type Flavor struct {
 	UUID       string  `json:"uuid"`
 	Name       string  `json:"name"`

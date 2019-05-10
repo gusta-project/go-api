@@ -11,13 +11,16 @@ import (
 	"github.com/pscn/flavor2go/middleware"
 	"github.com/pscn/flavor2go/model"
 
+	// this provides short and long options which is nice
+	// but flag is probably the better choice later on if we read everything
+	// from a config file
 	"github.com/karrick/golf"
 )
 
 var port = golf.IntP('l', "listen", 3000, "port to listen on")
 
 // FIXME: maybe just use a connect string
-// FIXME:² read from config
+// FIXME:² read from a config file
 var pgHost = golf.StringP('h', "host", "localhost", "postgres host")
 var pgPort = golf.IntP('p', "port", 5432, "postgres port")
 var pgDatabase = golf.StringP('d', "database", "gusta", "postgres database")
