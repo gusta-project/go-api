@@ -13,7 +13,7 @@ import (
 )
 
 // NameSpaceUUID -
-var NameSpaceUUID uuid.UUID
+var NameSpaceUUID *uuid.UUID
 
 func init() {
 	NameSpaceUUID, _ = uuid.Parse("7311c711-03bd-4ad7-b639-976d2e849edb")
