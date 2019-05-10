@@ -12,21 +12,16 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
+// NameSpaceUUID -
 var NameSpaceUUID uuid.UUID
 
 func init() {
 	NameSpaceUUID, _ = uuid.Parse("7311c711-03bd-4ad7-b639-976d2e849edb")
 }
 
-// DB abstraction
+// Manager -
 type Manager struct {
 	*gorm.DB
-}
-
-func New(db *gorm.DB) *Manager {
-	db.AutoMigrate(&Vendor{})
-	db.AutoMigrate(&Flavor{})
-	return &Manager{db}
 }
 
 // NewPostgres initialize with Postgres
@@ -47,7 +42,7 @@ func NewPostgres(host string, port int, user, dbname, password string, useSSL bo
 		panic(err)
 	}
 
-	return New(db)
+	return &Manager{db}
 }
 
 // NewSqlite initialize with SQLite
@@ -61,5 +56,5 @@ func NewSqlite(fileName string) *Manager {
 		panic(err)
 	}
 
-	return New(db)
+	return &Manager{db}
 }
