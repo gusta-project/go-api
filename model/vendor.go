@@ -20,23 +20,22 @@ func (v *Vendor) String() string {
 	return fmt.Sprintf("%s %s", v.Name, v.Code)
 }
 
-func (v *Vendor) GenUUID() string {
+func (v *Vendor) uuid() string {
 	return uuid.NewV3(NameSpaceUUID, v).String()
 }
 
-// HasVendor check if the given vendor exists
-func (m *Manager) GetVendor(vendor *Vendor) *Vendor {
-	var result = &Vendor{}
-	if vendor.UUID != "" {
-		m.Where("uuid=?", vendor.UUID).Find(&result)
-	}
-	if vendor.Name != "" {
-		m.Where("name=?", vendor.Name).Find(&result)
-	}
-	if vendor.Code != "" {
-		m.Where("code=?", vendor.Code).Find(&result)
-	}
-	return result
+// GetVendor -
+func (m *Manager) GetVendor(uuid string) *Vendor {
+	vendor := &Vendor{}
+	m.Where("uuid=?", uuid).Find(&vendor)
+	return vendor
+}
+
+// GetVendors -
+func (m *Manager) GetVendors() *[]Vendor {
+	vendors := make([]Vendor, 0)
+	m.Find(&vendors)
+	return &vendors
 }
 
 // BeforeCreate check if name & code is set and generate a UUID
@@ -47,7 +46,7 @@ func (v *Vendor) BeforeCreate(scope *gorm.Scope) error {
 	if v.Code == "" {
 		return errors.New("code must be set")
 	}
-	scope.SetColumn("UUID", v.GenUUID())
+	scope.SetColumn("UUID", v.uuid())
 	return nil
 }
 

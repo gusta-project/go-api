@@ -49,13 +49,21 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(vendor)
 }
 
+// GetVendorByUUID -
 func (a *API) GetVendorByUUID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	vendor := a.m.GetVendor(&model.Vendor{UUID: vars["uuid"]})
+	vendor := a.m.GetVendor(vars["uuid"])
 	if vendor.UUID == "" {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
 	json.NewEncoder(w).Encode(vendor)
+}
+
+// GetVendors -
+func (a *API) GetVendors(w http.ResponseWriter, r *http.Request) {
+	vendors := a.m.GetVendors()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(vendors)
 }
