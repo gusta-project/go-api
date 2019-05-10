@@ -18,7 +18,7 @@ type Flavor struct {
 }
 
 func (f *Flavor) String() string {
-	return fmt.Sprintf("%s %s", f.Vendor, f.Name)
+	return fmt.Sprintf("%s %s", f.VendorUUID, f.Name)
 }
 
 func (f *Flavor) uuid() string {
