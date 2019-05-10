@@ -1,8 +1,10 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/twinj/uuid"
 )
 
@@ -37,20 +39,26 @@ func (m *Manager) GetVendor(vendor *Vendor) *Vendor {
 	return result
 }
 
-func (m *Manager) AddVendor(vendor *Vendor) *Vendor {
-	if vendor.UUID == "" {
-		vendor.UUID = vendor.GenUUID()
+// BeforeCreate check if name & code is set and generate a UUID
+func (v *Vendor) BeforeCreate(scope *gorm.Scope) error {
+	if v.Name == "" {
+		return errors.New("name must be set")
 	}
-	m.Create(vendor) // FIXME: how to catch errors
-	return m.GetVendor(vendor)
+	if v.Code == "" {
+		return errors.New("code must be set")
+	}
+	scope.SetColumn("UUID", v.GenUUID())
+	return nil
 }
 
-func (m *Manager) UpdateVendor(vendor *Vendor) *Vendor {
-	// if we want to update by Name or by Code only, we need to get the UUID first
-	if vendor.UUID == "" {
-		current := m.GetVendor(vendor)
-		vendor.UUID = current.UUID
-	}
-	m.Save(vendor)
-	return vendor
+// AddVendor -
+func (m *Manager) AddVendor(v *Vendor) error {
+	db := m.Create(v)
+	return db.Error
+}
+
+// UpdateVendor -
+func (m *Manager) UpdateVendor(vendor *Vendor) error {
+	db := m.Save(vendor)
+	return db.Error
 }

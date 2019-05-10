@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/twinj/uuid"
 )
 
@@ -14,12 +15,12 @@ type Flavor struct {
 	Vendor     Vendor
 }
 
-func (v *Flavor) String() string {
-	return fmt.Sprintf("%s %s", &v.Vendor, v.Name)
+func (f *Flavor) String() string {
+	return fmt.Sprintf("%s %s", &f.Vendor, f.Name)
 }
 
-func (v *Flavor) GenUUID() string {
-	return uuid.NewV3(NameSpaceUUID, v).String()
+func (f *Flavor) GenUUID() string {
+	return uuid.NewV3(NameSpaceUUID, f).String()
 }
 
 // HasFlavor check if the given flavor exists
@@ -40,15 +41,17 @@ func (m *Manager) GetFlavor(flavor *Flavor) *Flavor {
 	return result
 }
 
-func (m *Manager) AddFlavor(flavor *Flavor) *Flavor {
-	if flavor.UUID == "" {
-		flavor.UUID = flavor.GenUUID()
+func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
+	scope.SetColumn("UUID", f.GenUUID())
+	return nil
+}
+
+func (m *Manager) AddFlavor(f *Flavor) *Flavor {
+	if f.VendorUUID == "" {
+		f.VendorUUID = f.Vendor.UUID
 	}
-	if flavor.VendorUUID == "" {
-		flavor.VendorUUID = flavor.Vendor.UUID
-	}
-	m.Create(flavor) // FIXME: how to catch errors
-	return m.GetFlavor(flavor)
+	m.Create(f) // FIXME: how to catch errors
+	return f
 }
 
 func (m *Manager) UpdateFlavor(flavor *Flavor) *Flavor {
