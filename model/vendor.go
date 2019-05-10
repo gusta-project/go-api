@@ -10,10 +10,10 @@ import (
 
 // Vendor struct
 type Vendor struct {
-	UUID string `gorm:"type:uuid;not null;unique_index;primary_key" json:"uuid"`
-	Name string `gorm:"not null;unique_index" json:"name"`
-	Code string `gorm:"not null;unique_index" json:"code"`
-	URL  string `gorm:"" json:"url"`
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+	Code string `json:"code"`
+	URL  string `json:"url"`
 }
 
 func (v *Vendor) String() string {
