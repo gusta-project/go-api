@@ -2,17 +2,12 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:d15c9d588c5a992c499e16ad71a5a95d6d307c65b349a7c0aca1b60591bd6086"
-  name = "github.com/gomarkdown/markdown"
-  packages = [
-    ".",
-    "ast",
-    "html",
-    "parser",
-  ]
+  digest = "1:d5f97fc268267ec1b61c3453058c738246fc3e746f14b1ae25161513b7367b0c"
+  name = "github.com/gorilla/mux"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "ee6a7931a1e4b802c9ff93e4dabcabacf4cb91db"
+  revision = "c5c6c98bc25355028a63748a498942a6398ccd22"
+  version = "v1.7.1"
 
 [[projects]]
   digest = "1:5d725dc044b96b2aef333353bc7dfc13a77166013980af103e2ddce3227c562b"
@@ -63,16 +58,24 @@
   revision = "c7c4067b79cc51e6dfdcef5c702e74b1e0fa7c75"
   version = "v1.10.0"
 
+[[projects]]
+  digest = "1:8f41bbca0d6435bb54d7c090336f7693942cda30f9126eaf3959b8df48721ac3"
+  name = "github.com/twinj/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "835a10bbd6bce40820349a68b1368a62c3c5617c"
+  version = "v1.0.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/gomarkdown/markdown",
-    "github.com/gomarkdown/markdown/parser",
+    "github.com/gorilla/mux",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/jinzhu/gorm/dialects/sqlite",
     "github.com/karrick/golf",
+    "github.com/twinj/uuid",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
