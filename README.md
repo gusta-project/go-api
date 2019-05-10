@@ -60,4 +60,4 @@ To drop everything and start new do:
 migrate -source file://migrations -database postgres://gusta:changeme@localhost:5432/gusta?sslmode=disable drop
 ```
 
-Note: This will probably not be it. Lots of strange behaviors. E. g. using the above command with `-dir migrations/` fails in reading the existing files, because it can not convert the path to int. Too bad.
+Note on the migration package: This will probably not be it. Lots of strange behaviors. E. g. using the above command to create a new migration with `-dir migrations/` fails in reading the existing files, because it can not convert the path to int. Too bad.
