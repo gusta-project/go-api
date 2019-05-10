@@ -9,40 +9,44 @@ import (
 )
 
 func (a *API) CreateVendor(w http.ResponseWriter, r *http.Request) {
-	var vendor model.Vendor
-	err := json.NewDecoder(r.Body).Decode(&vendor)
+	vendor := &model.Vendor{}
+	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	vendor = *a.m.AddVendor(&vendor)
-	if vendor.UUID == "" {
+
+	if err = a.m.AddVendor(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(Error(err))
+		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(vendor)
 }
 
+// UpdateVendor from JSON
 func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
-	var vendor model.Vendor
-	err := json.NewDecoder(r.Body).Decode(&vendor)
+	vendor := &model.Vendor{}
+	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	vars := mux.Vars(r)
 	if vars["uuid"] != "" {
 		vendor.UUID = vars["uuid"]
 	}
-	vendor = *a.m.UpdateVendor(&vendor)
-	if vendor.UUID == "" {
+
+	if err = a.m.UpdateVendor(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(Error(err))
+		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(vendor)
 }
 
