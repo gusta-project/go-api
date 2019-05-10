@@ -10,14 +10,14 @@ import (
 
 // Flavor struct
 type Flavor struct {
-	UUID       string `gorm:"type:uuid;not null;unique_index;primary_key" json:"uuid"`
-	Name       string `gorm:"not null;unique_index:idx_name_vendor_uuid" json:"name"`
-	VendorUUID string `gorm:"not null;unique_index:idx_name_vendor_uuid" json:"vendor_uuid"`
-	Vendor     Vendor `gorm:"foreignkey:vendor_uuid;association_foreignkey:uuid" json:"vendor"`
+	UUID       string  `json:"uuid"`
+	Name       string  `json:"name"`
+	VendorUUID string  `json:"vendor_uuid"`
+	Vendor     *Vendor `gorm:"foreignkey:UUID;association_foreignkey:VendorUUID" json:"vendor"`
 }
 
 func (f *Flavor) String() string {
-	return fmt.Sprintf("%s %s", &f.Vendor, f.Name)
+	return fmt.Sprintf("%s %s", f.Vendor, f.Name)
 }
 
 func (f *Flavor) uuid() string {
@@ -26,18 +26,15 @@ func (f *Flavor) uuid() string {
 
 // GetFlavor -
 func (m *Manager) GetFlavor(uuid string) *Flavor {
-	flavor := &Flavor{}
-	m.Where("uuid=?", uuid).Find(&flavor)
-	if flavor.UUID != "" {
-		flavor.Vendor = *m.GetVendor(flavor.VendorUUID)
-	}
-	return flavor
+	f := &Flavor{}
+	m.Where("uuid=?", uuid).Preload("Vendor").Find(&f)
+	return f
 }
 
 // GetFlavors -
 func (m *Manager) GetFlavors() *[]Flavor {
 	flavors := make([]Flavor, 0)
-	m.Find(&flavors)
+	m.Preload("Vendor").Find(&flavors)
 	return &flavors
 }
 
@@ -55,8 +52,12 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 
 // AddFlavor -
 func (m *Manager) AddFlavor(f *Flavor) error {
-	db := m.Create(f) // FIXME: how to catch errors
-	return db.Error
+	db := m.Create(f)
+	if db.Error != nil {
+		return db.Error
+	}
+	f.Vendor = m.GetVendor(f.VendorUUID)
+	return nil
 }
 
 // UpdateFlavor -
