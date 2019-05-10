@@ -47,7 +47,7 @@ Run the migrations:
 migrate -source file://migrations -database postgres://gusta:changeme@localhost:5432/gusta?sslmode=disable up
 ```
 
-Create a new migration (e. g. for recipes). This will create up & down files for vendors in the migrations directory.
+Create a new migration (e. g. for recipes). This will create up & down files for recipes in the migrations directory.
 
 ```sh
 cd migrations
