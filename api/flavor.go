@@ -19,7 +19,7 @@ func (a *API) CreateFlavor(w http.ResponseWriter, r *http.Request) {
 
 	if err = a.m.AddFlavor(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(Error(err))
+		w.Write(Error(err))
 		return
 	}
 
@@ -43,7 +43,7 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 
 	if err = a.m.UpdateFlavor(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(Error(err))
+		w.Write(Error(err))
 		return
 	}
 
@@ -51,11 +51,20 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(flavor)
 }
 
-// GetFlavorByUUID -
-func (a *API) GetFlavorByUUID(w http.ResponseWriter, r *http.Request) {
+// GetFlavor -
+func (a *API) GetFlavor(w http.ResponseWriter, r *http.Request) {
+	flavor := &model.Flavor{}
+	err := json.NewDecoder(r.Body).Decode(flavor)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	vars := mux.Vars(r)
-	flavor := a.m.GetFlavor(vars["uuid"])
-	if flavor.UUID == "" {
+	// slug from URL > uuid from body
+	if vars["slug"] != "" {
+		flavor.Slug = vars["slug"]
+	}
+	if flavor.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
 		w.WriteHeader(http.StatusOK)
