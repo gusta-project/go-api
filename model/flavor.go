@@ -53,7 +53,11 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 
 // AddFlavor -
 func (m *Manager) AddFlavor(f *Flavor) error {
-	db := m.FirstOrInit(f)
+	vendor := m.GetVendor(f.VendorUUID)
+	if vendor.UUID == "" {
+		return fmt.Errorf("no vendor with uuid=%s", f.VendorUUID)
+	}
+	db := m.Where(f).FirstOrCreate(f)
 	if db.Error != nil {
 		return db.Error
 	}

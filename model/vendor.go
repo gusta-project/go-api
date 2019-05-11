@@ -52,7 +52,7 @@ func (v *Vendor) BeforeCreate(scope *gorm.Scope) error {
 
 // AddVendor -
 func (m *Manager) AddVendor(v *Vendor) error {
-	db := m.FirstOrInit(v)
+	db := m.FirstOrCreate(v)
 	return db.Error
 }
 
