@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
 	"github.com/twinj/uuid"
 )
@@ -11,20 +12,37 @@ import (
 // Flavor struct
 // Only the Vendor requires the gorm hints for preloading
 type Flavor struct {
-	ID       int     `json:"-"`
+	ID       int     `json:"-"` // don't publish
 	UUID     string  `json:"uuid"`
 	Slug     string  `json:"slug"`
 	Name     string  `json:"name"`
+	Gravity  string  `json:"gravity"`
 	VendorID int     `json:"vendor_id" json:"-"`
 	Vendor   *Vendor `gorm:"foreignkey:UUID;association_foreignkey:VendorID" json:"vendor"`
 }
 
 func (f *Flavor) String() string {
+	// FIXME: how to ensure that vendor is loaded?
+	if f.Vendor.ID == 0 {
+		return fmt.Sprintf("[NotLoaded!] %s", f.Name)
+	}
 	return fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name)
 }
 
+// slug for this flavor.
+// Will panic if the vendor is not loaded.
+func (f *Flavor) slug() string {
+	// FIXME: how to ensure that vendor is loaded?
+	if f.Vendor.ID == 0 {
+		panic("called Flavor.String() with vendor not loaded")
+	}
+	return slug.Make(fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name))
+}
+
+// uuid for this flavor based on the slug.
+// Will panic if the vendor is not loaded.
 func (f *Flavor) uuid() string {
-	return uuid.NewV3(NameSpaceUUID, f).String()
+	return uuid.NewV3(NameSpaceUUID, f.slug()).String()
 }
 
 // GetFlavor -
@@ -49,6 +67,7 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 		return errors.New("vendor id must be set")
 	}
 	scope.SetColumn("UUID", f.uuid())
+	scope.SetColumn("Slug", f.slug())
 	return nil
 }
 
