@@ -53,7 +53,7 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 
 // AddFlavor -
 func (m *Manager) AddFlavor(f *Flavor) error {
-	db := m.Create(f)
+	db := m.FirstOrInit(f)
 	if db.Error != nil {
 		return db.Error
 	}
