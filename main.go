@@ -28,11 +28,14 @@ var pgUser = golf.StringP('u', "user", "gusta", "postgres user")
 var pgPass = golf.String("pass", "changeme", "postgres password")
 var pgUseSSL = golf.BoolP('s', "ssl", false, "postgres use SSL")
 
+var verbose = golf.BoolP('v', "verbose", false, "log DB queries")
+
 func main() {
 	golf.Parse()
 	log.SetFlags(0)
 
 	m := model.NewPostgres(*pgHost, *pgPort, *pgUser, *pgDatabase, *pgPass, *pgUseSSL)
+	m.LogMode(*verbose)
 	a := api.New(m)
 	defer m.Close()
 
