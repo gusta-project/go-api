@@ -10,7 +10,9 @@ import (
 
 // Vendor struct
 type Vendor struct {
+	ID   int    `json:"-"`
 	UUID string `json:"uuid"`
+	Slug string `json:"slug"`
 	Name string `json:"name"`
 	Code string `json:"code"`
 	URL  string `json:"url"`
@@ -25,10 +27,9 @@ func (v *Vendor) uuid() string {
 }
 
 // GetVendor -
-func (m *Manager) GetVendor(uuid string) *Vendor {
-	vendor := &Vendor{}
-	m.Where("uuid=?", uuid).Find(&vendor)
-	return vendor
+func (m *Manager) GetVendor(v *Vendor) *Vendor {
+	m.Where(v).Find(v)
+	return v
 }
 
 // GetVendors -

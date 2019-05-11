@@ -11,14 +11,16 @@ import (
 // Flavor struct
 // Only the Vendor requires the gorm hints for preloading
 type Flavor struct {
-	UUID       string  `json:"uuid"`
-	Name       string  `json:"name"`
-	VendorUUID string  `json:"vendor_uuid"`
-	Vendor     *Vendor `gorm:"foreignkey:UUID;association_foreignkey:VendorUUID" json:"vendor"`
+	ID       int     `json:"-"`
+	UUID     string  `json:"uuid"`
+	Slug     string  `json:"slug"`
+	Name     string  `json:"name"`
+	VendorID int     `json:"vendor_id" json:"-"`
+	Vendor   *Vendor `gorm:"foreignkey:UUID;association_foreignkey:VendorID" json:"vendor"`
 }
 
 func (f *Flavor) String() string {
-	return fmt.Sprintf("%s %s", f.VendorUUID, f.Name)
+	return fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name)
 }
 
 func (f *Flavor) uuid() string {
@@ -26,9 +28,8 @@ func (f *Flavor) uuid() string {
 }
 
 // GetFlavor -
-func (m *Manager) GetFlavor(uuid string) *Flavor {
-	f := &Flavor{}
-	m.Where("uuid=?", uuid).Preload("Vendor").Find(&f)
+func (m *Manager) GetFlavor(f *Flavor) *Flavor {
+	m.Where(f).Preload("Vendor").Find(f)
 	return f
 }
 
@@ -44,8 +45,8 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 	if f.Name == "" {
 		return errors.New("name must be set")
 	}
-	if f.VendorUUID == "" {
-		return errors.New("vendor_uuid must be set")
+	if f.VendorID == 0 {
+		return errors.New("vendor id must be set")
 	}
 	scope.SetColumn("UUID", f.uuid())
 	return nil
@@ -53,15 +54,15 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 
 // AddFlavor -
 func (m *Manager) AddFlavor(f *Flavor) error {
-	vendor := m.GetVendor(f.VendorUUID)
+	vendor := m.GetVendor(&Vendor{ID: f.VendorID})
 	if vendor.UUID == "" {
-		return fmt.Errorf("no vendor with uuid=%s", f.VendorUUID)
+		return fmt.Errorf("no vendor with id=%d", f.VendorID)
 	}
 	db := m.Where(f).FirstOrCreate(f)
 	if db.Error != nil {
 		return db.Error
 	}
-	f.Vendor = m.GetVendor(f.VendorUUID)
+	f.Vendor = vendor
 	return nil
 }
 
