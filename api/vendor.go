@@ -2,13 +2,15 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/pscn/flavor2go/model"
 )
 
-func (a *API) CreateVendor(w http.ResponseWriter, r *http.Request) {
+// AddVendor -
+func (a *API) AddVendor(w http.ResponseWriter, r *http.Request) {
 	vendor := &model.Vendor{}
 	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
@@ -18,12 +20,30 @@ func (a *API) CreateVendor(w http.ResponseWriter, r *http.Request) {
 
 	if err = a.m.AddVendor(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(Error(err))
+		w.Write(Error(err))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(vendor)
+}
+
+// DeleteVendor -
+func (a *API) DeleteVendor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	if vars["uuid"] == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(Error(errors.New("UUID missing")))
+		return
+	}
+	if err := a.m.DeleteVendor(&model.Vendor{UUID: vars["uuid"]}); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(Error(err))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(Error(nil))
+	return
 }
 
 // UpdateVendor from JSON
@@ -42,7 +62,7 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 
 	if err = a.m.UpdateVendor(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(Error(err))
+		w.Write(Error(err))
 		return
 	}
 
@@ -53,7 +73,7 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 // GetVendorByUUID -
 func (a *API) GetVendorByUUID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	vendor := a.m.GetVendor(vars["uuid"])
+	vendor := a.m.GetVendor(&model.Vendor{UUID: vars["uuid"]})
 	if vendor.UUID == "" {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
