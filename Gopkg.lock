@@ -10,6 +10,14 @@
   version = "v1.7.1"
 
 [[projects]]
+  digest = "1:e46ef3b65e25f610b7151015e2b782af1aad6f8bb8ac2edb5bb90c1b94e92524"
+  name = "github.com/gosimple/slug"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e78d39397ba41d2c33d9615044ef93eca8a309d8"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:5d725dc044b96b2aef333353bc7dfc13a77166013980af103e2ddce3227c562b"
   name = "github.com/jinzhu/gorm"
   packages = [
@@ -59,6 +67,14 @@
   version = "v1.10.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e6a29574542c00bb18adb1bfbe629ff88c468c2af2e2e953d3e58eda07165086"
+  name = "github.com/rainycape/unidecode"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c"
+
+[[projects]]
   digest = "1:8f41bbca0d6435bb54d7c090336f7693942cda30f9126eaf3959b8df48721ac3"
   name = "github.com/twinj/uuid"
   packages = ["."]
@@ -71,6 +87,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gorilla/mux",
+    "github.com/gosimple/slug",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/jinzhu/gorm/dialects/sqlite",
