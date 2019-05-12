@@ -3,9 +3,11 @@ package model
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/gosimple/slug"
 	"github.com/jinzhu/gorm"
+	"github.com/patrickmn/go-cache"
 	"github.com/twinj/uuid"
 )
 
@@ -21,9 +23,21 @@ type Flavor struct {
 	Vendor   *Vendor `gorm:"foreignkey:UUID;association_foreignkey:VendorID" json:"vendor"`
 }
 
+// FlavorManager to provide for short method names and a cache
+
+type FlavorManager struct {
+	cache *cache.Cache
+	db    *Manager // link back to manager
+}
+
+// NewFlavorManager -
+func (m *Manager) NewFlavorManager() *FlavorManager {
+	return &FlavorManager{db: m, cache: newCache()}
+}
+
 func (f *Flavor) String() string {
 	// FIXME: how to ensure that vendor is loaded?
-	if f.Vendor.ID == 0 {
+	if f.Vendor.Slug == "" {
 		return fmt.Sprintf("[NotLoaded!] %s", f.Name)
 	}
 	return fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name)
@@ -45,16 +59,16 @@ func (f *Flavor) uuid() string {
 	return uuid.NewV3(NameSpaceUUID, f.slug()).String()
 }
 
-// GetFlavor -
-func (m *Manager) GetFlavor(f *Flavor) *Flavor {
-	m.Where(f).Preload("Vendor").Find(f)
+// Get -
+func (m *FlavorManager) Get(f *Flavor) *Flavor {
+	m.db.Where(f).Preload("Vendor").Find(f)
 	return f
 }
 
-// GetFlavors -
-func (m *Manager) GetFlavors() *[]Flavor {
+// GetAll -
+func (m *FlavorManager) GetAll() *[]Flavor {
 	flavors := make([]Flavor, 0)
-	m.Preload("Vendor").Find(&flavors)
+	m.db.Preload("Vendor").Find(&flavors)
 	return &flavors
 }
 
@@ -71,22 +85,24 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-// AddFlavor -
-func (m *Manager) AddFlavor(f *Flavor) error {
-	vendor := m.GetVendor(&Vendor{ID: f.VendorID})
-	if vendor.UUID == "" {
-		return fmt.Errorf("no vendor with id=%d", f.VendorID)
+// Add -
+func (m *FlavorManager) Add(f *Flavor) error {
+	log.Printf("AddFlavor: %v", f.Vendor)
+	v := m.db.Vendor.Get(f.Vendor)
+	if v == nil {
+		return fmt.Errorf("no vendor for %v", f.Vendor)
 	}
-	db := m.Where(f).FirstOrCreate(f)
+	f.VendorID = v.ID
+	db := m.db.Where(f).FirstOrCreate(f)
 	if db.Error != nil {
 		return db.Error
 	}
-	f.Vendor = vendor
+	f.Vendor = v
 	return nil
 }
 
 // UpdateFlavor -
-func (m *Manager) UpdateFlavor(flavor *Flavor) error {
-	db := m.Save(flavor)
+func (m *FlavorManager) Update(flavor *Flavor) error {
+	db := m.db.Save(flavor)
 	return db.Error
 }

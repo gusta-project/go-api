@@ -2,6 +2,9 @@ package model
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
@@ -23,6 +26,13 @@ func init() {
 // Manager -
 type Manager struct {
 	*gorm.DB
+	Vendor *VendorManager
+	Flavor *FlavorManager
+}
+
+// newCache wrapper to provide all sub managers with the same cache setup
+func newCache() *cache.Cache {
+	return cache.New(5*time.Minute, 10*time.Minute)
 }
 
 // NewPostgres initialize with Postgres
@@ -42,8 +52,10 @@ func NewPostgres(host string, port int, user, dbname, password string, useSSL bo
 	if err = db.DB().Ping(); err != nil {
 		panic(err)
 	}
-
-	return &Manager{db}
+	m := &Manager{DB: db}
+	m.Vendor = m.NewVendorManager()
+	m.Flavor = m.NewFlavorManager()
+	return m
 }
 
 // NewSqlite initialize with SQLite
@@ -57,7 +69,7 @@ func NewSqlite(fileName string) *Manager {
 		panic(err)
 	}
 
-	return &Manager{db}
+	return &Manager{DB: db}
 }
 
 // HandleError wraps postgres errors

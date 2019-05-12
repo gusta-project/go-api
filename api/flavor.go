@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -14,10 +15,13 @@ func (a *API) CreateFlavor(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(flavor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(Error(err))
 		return
 	}
+	log.Printf("CreateFlavor: %#v", flavor)
+	log.Printf("CreateFlavor: %#v", flavor.Vendor)
 
-	if err = a.m.AddFlavor(flavor); err != nil {
+	if err = a.flavor.Add(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -41,7 +45,7 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 		flavor.UUID = vars["uuid"]
 	}
 
-	if err = a.m.UpdateFlavor(flavor); err != nil {
+	if err = a.flavor.Update(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -60,7 +64,7 @@ func (a *API) GetFlavor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	// slug from URL > uuid from body
+	// slug from URL > slug from body
 	if vars["slug"] != "" {
 		flavor.Slug = vars["slug"]
 	}
@@ -74,7 +78,7 @@ func (a *API) GetFlavor(w http.ResponseWriter, r *http.Request) {
 
 // GetFlavors -
 func (a *API) GetFlavors(w http.ResponseWriter, r *http.Request) {
-	flavors := a.m.GetFlavors()
+	flavors := a.flavor.GetAll()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(flavors)
 }

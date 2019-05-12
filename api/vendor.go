@@ -15,10 +15,11 @@ func (a *API) AddVendor(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(Error(err))
 		return
 	}
 
-	if err = a.m.AddVendor(vendor); err != nil {
+	if err = a.vendor.Add(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -31,12 +32,12 @@ func (a *API) AddVendor(w http.ResponseWriter, r *http.Request) {
 // DeleteVendor -
 func (a *API) DeleteVendor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	if vars["uuid"] == "" {
+	if vars["slug"] == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(Error(errors.New("UUID missing")))
+		w.Write(Error(errors.New("slug missing")))
 		return
 	}
-	if err := a.m.DeleteVendor(&model.Vendor{UUID: vars["uuid"]}); err != nil {
+	if err := a.vendor.Delete(&model.Vendor{Slug: vars["slug"]}); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -52,15 +53,16 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(Error(errors.New("failed to decode JSON payload")))
 		return
 	}
 	vars := mux.Vars(r)
-	// uuid from URL > uuid from body
-	if vars["uuid"] != "" {
-		vendor.UUID = vars["uuid"]
+	// slug from URL > slug from body
+	if vars["slug"] != "" {
+		vendor.Slug = vars["slug"]
 	}
 
-	if err = a.m.UpdateVendor(vendor); err != nil {
+	if err = a.vendor.Update(vendor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -70,21 +72,22 @@ func (a *API) UpdateVendor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(vendor)
 }
 
-// GetVendorByUUID -
-func (a *API) GetVendorByUUID(w http.ResponseWriter, r *http.Request) {
+// GetVendor -
+func (a *API) GetVendor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	vendor := a.m.GetVendor(&model.Vendor{UUID: vars["uuid"]})
-	if vendor.UUID == "" {
+	vendor := a.vendor.Get(&model.Vendor{Slug: vars["slug"]})
+	if vendor == nil || vendor.Slug == "" {
 		w.WriteHeader(http.StatusNotFound)
-	} else {
-		w.WriteHeader(http.StatusOK)
+		w.Write(Error(errors.New("vendor not found")))
+		return
 	}
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(vendor)
 }
 
 // GetVendors -
 func (a *API) GetVendors(w http.ResponseWriter, r *http.Request) {
-	vendors := a.m.GetVendors()
+	vendors := a.vendor.GetAll()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(vendors)
 }

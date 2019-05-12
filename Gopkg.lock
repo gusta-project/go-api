@@ -92,6 +92,7 @@
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/jinzhu/gorm/dialects/sqlite",
     "github.com/karrick/golf",
+    "github.com/lib/pq",
     "github.com/twinj/uuid",
   ]
   solver-name = "gps-cdcl"

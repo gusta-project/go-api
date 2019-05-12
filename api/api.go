@@ -7,36 +7,45 @@ import (
 
 // API so we can use the Manager aka the DB in the Handlers
 type API struct {
-	m *model.Manager
+	db     *model.Manager
+	vendor *model.VendorManager
+	flavor *model.FlavorManager
 }
+
+// FIXME: split this in flavor & vendor API?
 
 // New API
 func New(m *model.Manager) *API {
-	return &API{m: m}
+	return &API{
+		db:     m,
+		vendor: m.Vendor,
+		flavor: m.Flavor,
+	}
 }
 
 // Register routes
 func (a *API) Register(r *mux.Router) {
 	r.HandleFunc("/vendor/", a.AddVendor).Methods("POST")
-	// update with uuid in the body
+	// update with slug as payload
 	r.HandleFunc("/vendor/", a.UpdateVendor).Methods("PUT")
-	// update with uuid in the URL
-	r.HandleFunc("/vendor/{uuid}", a.UpdateVendor).Methods("PUT")
-	r.HandleFunc("/vendor/{uuid}", a.GetVendorByUUID).Methods("GET")
+	// update with slug as payload
+	r.HandleFunc("/vendor/{slug}", a.UpdateVendor).Methods("PUT")
+
+	r.HandleFunc("/vendor/{slug}", a.GetVendor).Methods("GET")
 
 	r.HandleFunc("/vendor/", a.DeleteVendor).Methods("DELETE")
-	r.HandleFunc("/vendor/{uuid}", a.DeleteVendor).Methods("DELETE")
+	r.HandleFunc("/vendor/{slug}", a.DeleteVendor).Methods("DELETE")
 
 	// FIXME: only for development
 	r.HandleFunc("/vendors/", a.GetVendors).Methods("GET")
 
 	r.HandleFunc("/flavor/", a.CreateFlavor).Methods("POST")
-	// update with uuid in the body
+	// update with slug as payload
 	r.HandleFunc("/flavor/", a.UpdateFlavor).Methods("PUT")
 	// update with uuid in the URL
-	r.HandleFunc("/flavor/{uuid}", a.UpdateFlavor).Methods("PUT")
+	r.HandleFunc("/flavor/{slug}", a.UpdateFlavor).Methods("PUT")
 
-	// get with attributes in the body
+	// get with slug as payload
 	r.HandleFunc("/flavor/", a.GetFlavor).Methods("GET")
 	// get from slug
 	r.HandleFunc("/flavor/{slug}", a.GetFlavor).Methods("GET")
