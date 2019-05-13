@@ -67,6 +67,14 @@
   version = "v1.10.0"
 
 [[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:e6a29574542c00bb18adb1bfbe629ff88c468c2af2e2e953d3e58eda07165086"
   name = "github.com/rainycape/unidecode"
@@ -93,6 +101,7 @@
     "github.com/jinzhu/gorm/dialects/sqlite",
     "github.com/karrick/golf",
     "github.com/lib/pq",
+    "github.com/patrickmn/go-cache",
     "github.com/twinj/uuid",
   ]
   solver-name = "gps-cdcl"
