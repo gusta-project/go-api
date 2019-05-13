@@ -36,7 +36,7 @@ func (m *Manager) NewFlavorManager() *FlavorManager {
 }
 
 func (f *Flavor) String() string {
-	return v.Slug
+	return f.Slug
 }
 
 // slug for this flavor.
