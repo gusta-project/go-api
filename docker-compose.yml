@@ -2,7 +2,7 @@ version: '2.1' # 2.1 is important for the depends_on condition
 services:
   api:
     build: .
-    container_name: flavor2go
+    container_name: go-api
     ports:
       - 3000:3000
     links:
