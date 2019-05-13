@@ -58,20 +58,6 @@ func NewPostgres(host string, port int, user, dbname, password string, useSSL bo
 	return m
 }
 
-// NewSqlite initialize with SQLite
-func NewSqlite(fileName string) *Manager {
-	db, err := gorm.Open("sqlite3", fileName)
-	if err != nil {
-		panic(err)
-	}
-
-	if err = db.DB().Ping(); err != nil {
-		panic(err)
-	}
-
-	return &Manager{DB: db}
-}
-
 // HandleError wraps postgres errors
 // FIXME: give hints on which errors are expected / unexpected?
 // see https://github.com/lib/pq/blob/master/error.go for the list of error codes
