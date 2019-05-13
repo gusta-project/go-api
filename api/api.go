@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/pscn/flavor2go/model"
+	"github.com/gusta-project/go-api/model"
 )
 
 // API so we can use the Manager aka the DB in the Handlers

@@ -7,9 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/pscn/flavor2go/api"
-	"github.com/pscn/flavor2go/middleware"
-	"github.com/pscn/flavor2go/model"
+	"github.com/gusta-project/go-api/api"
+	"github.com/gusta-project/go-api/middleware"
+	"github.com/gusta-project/go-api/model"
 
 	// this provides short and long options which is nice
 	// but flag is probably the better choice later on if we read everything

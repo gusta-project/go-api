@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/pscn/flavor2go/model"
+	"github.com/gusta-project/go-api/model"
 )
 
 // CreateFlavor -
