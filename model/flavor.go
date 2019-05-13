@@ -36,11 +36,7 @@ func (m *Manager) NewFlavorManager() *FlavorManager {
 }
 
 func (f *Flavor) String() string {
-	// FIXME: how to ensure that vendor is loaded?
-	if f.Vendor.Slug == "" {
-		return fmt.Sprintf("[NotLoaded!] %s", f.Name)
-	}
-	return fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name)
+	return v.Slug
 }
 
 // slug for this flavor.
@@ -48,7 +44,7 @@ func (f *Flavor) String() string {
 func (f *Flavor) slug() string {
 	// FIXME: how to ensure that vendor is loaded?
 	if f.Vendor.ID == 0 {
-		panic("called Flavor.String() with vendor not loaded")
+		panic("called Flavor.slug() with vendor not loaded")
 	}
 	return slug.Make(fmt.Sprintf("%s %s", f.Vendor.Slug, f.Name))
 }
@@ -56,7 +52,7 @@ func (f *Flavor) slug() string {
 // uuid for this flavor based on the slug.
 // Will panic if the vendor is not loaded.
 func (f *Flavor) uuid() string {
-	return uuid.NewV3(NameSpaceUUID, f.slug()).String()
+	return uuid.NewV3(NameSpaceUUID, f).String()
 }
 
 // Get -
@@ -80,8 +76,9 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 	if f.VendorID == 0 {
 		return errors.New("vendor id must be set")
 	}
+	f.Slug = f.slug() // set before calling uuid
 	scope.SetColumn("UUID", f.uuid())
-	scope.SetColumn("Slug", f.slug())
+	scope.SetColumn("Slug", f.Slug)
 	return nil
 }
 

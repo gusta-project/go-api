@@ -101,8 +101,9 @@ func (v *Vendor) BeforeCreate(scope *gorm.Scope) error {
 	if v.Code == "" {
 		return errors.New("code must be set")
 	}
+	v.Slug = v.slug() // set before calling uuid
 	scope.SetColumn("UUID", v.uuid())
-	scope.SetColumn("Slug", v.slug())
+	scope.SetColumn("Slug", v.Slug)
 	return nil
 }
 
@@ -119,17 +120,30 @@ func (m *VendorManager) Delete(v *Vendor) error {
 }
 
 // Update vendor identified by s with values from v
-func (m *VendorManager) Update(s *Vendor, v *Vendor) error {
-	// FIXME: if s is not found aka no rows affected we don't get an error
-	err := m.db.HandleError(m.findOne(s).Update(v))
+// returns the modified vendor or nil if the vendor is not found or an error occured
+func (m *VendorManager) Update(s *Vendor, v *Vendor) *Vendor {
+	db := m.findOne(s).Update(v)
+	err := m.db.HandleError(db)
 	if err != nil {
-		return err
+		log.Printf("Error: Update: %v", err)
+		return nil
 	}
-	// Verify slug
+	if db.RowsAffected == 0 {
+		log.Printf("Info: Update: no rows affected")
+		return nil
+	}
+
+	// Verify / update slug
 	v = m.Get(s)
+	if v == nil { // should not happen as we checked RowsAffected above
+		// panic?
+		log.Printf("Error: Update affected rows, but could not fetch the result")
+		return nil
+	}
 	newSlug := v.slug()
 	if newSlug != v.Slug { // changed => update
-		err = m.db.HandleError(m.findOne(s).Update(&Vendor{Slug: newSlug}))
+		db = m.findOne(s).Update(&Vendor{Slug: newSlug})
+		err = m.db.HandleError(db)
 	}
-	return err
+	return v
 }

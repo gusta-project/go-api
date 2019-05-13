@@ -61,3 +61,5 @@ migrate -source file://migrations -database postgres://gusta:changeme@localhost:
 ```
 
 Note on the migration package: This will probably not be it. Lots of strange behaviors. E. g. using the above command to create a new migration with `-dir migrations/` fails in reading the existing files, because it can not convert the path to int. Too bad.
+
+[Restful API](https://restfulapi.net/http-methods/#put)

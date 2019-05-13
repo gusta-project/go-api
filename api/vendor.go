@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -51,7 +52,9 @@ func (a *VendorAPI) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	// FIXME: set Location header to /vendor/{slug}
+	w.Header().Set("Location", fmt.Sprintf("/vendor/%s", vendor.Slug))
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(vendor)
 }
 
@@ -89,13 +92,13 @@ func (a *VendorAPI) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.model.Update(&model.Vendor{Slug: vars["slug"]}, vendor)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
+	updated := a.model.Update(&model.Vendor{Slug: vars["slug"]}, vendor)
+	if updated != nil {
 		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(updated)
+	} else {
+		w.WriteHeader(http.StatusNoContent)
 	}
-	w.Write(Error(err))
 }
 
 // Get -
