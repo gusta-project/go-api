@@ -14,9 +14,9 @@ import (
 // Flavor struct
 // Only the Vendor requires the gorm hints for preloading
 type Flavor struct {
-	ID       int     `json:"-"` // don't publish
+	ID       int     `json:"-"`    // don't publish
+	Slug     string  `json:"slug"` // used as primary key for the API calls
 	UUID     string  `json:"uuid"`
-	Slug     string  `json:"slug"`
 	Name     string  `json:"name"`
 	Gravity  string  `json:"gravity"`
 	VendorID int     `json:"vendor_id" json:"-"`
@@ -85,8 +85,8 @@ func (f *Flavor) BeforeCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-// Add -
-func (m *FlavorManager) Add(f *Flavor) error {
+// Create -
+func (m *FlavorManager) Create(f *Flavor) error {
 	log.Printf("AddFlavor: %v", f.Vendor)
 	v := m.db.Vendor.Get(f.Vendor)
 	if v == nil {

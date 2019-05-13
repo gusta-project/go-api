@@ -13,9 +13,9 @@ import (
 
 // Vendor struct
 type Vendor struct {
-	ID   int    `json:"-"` // don't publish
+	ID   int    `json:"-"`    // don't publish
+	Slug string `json:"slug"` // used as primary key for the API calls
 	UUID string `json:"uuid"`
-	Slug string `json:"slug"`
 	Name string `json:"name"`
 	Code string `json:"code"`
 	URL  string `json:"url"`
@@ -109,8 +109,8 @@ func (v *Vendor) BeforeCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-// Add -
-func (m *VendorManager) Add(v *Vendor) error {
+// Create -
+func (m *VendorManager) Create(v *Vendor) error {
 	err := m.db.HandleError(m.findOne(v).FirstOrCreate(v))
 	m.storeToCache(v)
 	return err

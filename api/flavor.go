@@ -9,8 +9,34 @@ import (
 	"github.com/gusta-project/go-api/model"
 )
 
-// CreateFlavor -
-func (a *API) CreateFlavor(w http.ResponseWriter, r *http.Request) {
+// FlavorAPI -
+type FlavorAPI struct {
+	model *model.FlavorManager
+}
+
+// FlavorAPI -
+func (a *API) FlavorAPI() *FlavorAPI {
+	return &FlavorAPI{model: a.model.Flavor}
+}
+
+// Register routes for Flavor
+func (a *FlavorAPI) Register(r *mux.Router) {
+	r.HandleFunc("/flavor/", a.Create).Methods("POST")
+	// update with slug as payload
+	r.HandleFunc("/flavor/", a.Update).Methods("PUT")
+	// update with uuid in the URL
+	r.HandleFunc("/flavor/{slug}", a.Update).Methods("PUT")
+
+	// get with slug as payload
+	r.HandleFunc("/flavor/", a.Get).Methods("GET")
+	// get from slug
+	r.HandleFunc("/flavor/{slug}", a.Get).Methods("GET")
+	// FIXME: only for development
+	r.HandleFunc("/flavors/", a.GetAll).Methods("GET")
+}
+
+// Create -
+func (a *FlavorAPI) Create(w http.ResponseWriter, r *http.Request) {
 	flavor := &model.Flavor{}
 	err := json.NewDecoder(r.Body).Decode(flavor)
 	if err != nil {
@@ -21,7 +47,7 @@ func (a *API) CreateFlavor(w http.ResponseWriter, r *http.Request) {
 	log.Printf("CreateFlavor: %#v", flavor)
 	log.Printf("CreateFlavor: %#v", flavor.Vendor)
 
-	if err = a.flavor.Add(flavor); err != nil {
+	if err = a.model.Create(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -31,8 +57,8 @@ func (a *API) CreateFlavor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(flavor)
 }
 
-// UpdateFlavor -
-func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
+// Update -
+func (a *FlavorAPI) Update(w http.ResponseWriter, r *http.Request) {
 	flavor := &model.Flavor{}
 	err := json.NewDecoder(r.Body).Decode(flavor)
 	if err != nil {
@@ -45,7 +71,7 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 		flavor.UUID = vars["uuid"]
 	}
 
-	if err = a.flavor.Update(flavor); err != nil {
+	if err = a.model.Update(flavor); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(Error(err))
 		return
@@ -55,8 +81,8 @@ func (a *API) UpdateFlavor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(flavor)
 }
 
-// GetFlavor -
-func (a *API) GetFlavor(w http.ResponseWriter, r *http.Request) {
+// Get -
+func (a *FlavorAPI) Get(w http.ResponseWriter, r *http.Request) {
 	flavor := &model.Flavor{}
 	err := json.NewDecoder(r.Body).Decode(flavor)
 	if err != nil {
@@ -76,9 +102,9 @@ func (a *API) GetFlavor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(flavor)
 }
 
-// GetFlavors -
-func (a *API) GetFlavors(w http.ResponseWriter, r *http.Request) {
-	flavors := a.flavor.GetAll()
+// GetAll -
+func (a *FlavorAPI) GetAll(w http.ResponseWriter, r *http.Request) {
+	flavors := a.model.GetAll()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(flavors)
 }
