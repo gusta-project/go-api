@@ -21,19 +21,18 @@ func (a *API) VendorAPI() *VendorAPI {
 
 // Register routes for vendor
 func (a *VendorAPI) Register(r *mux.Router) {
+	// CREATE
 	r.HandleFunc("/vendor/", a.Create).Methods("POST")
-	// update with slug as payload
-	r.HandleFunc("/vendor/", a.Update).Methods("PUT")
-	// update with slug as payload
+
+	// READ
+	r.HandleFunc("/vendor/{slug}", a.Get).Methods("GET")
+	r.HandleFunc("/vendors/", a.GetAll).Methods("GET")
+
+	// UPDATE
 	r.HandleFunc("/vendor/{slug}", a.Update).Methods("PUT")
 
-	r.HandleFunc("/vendor/{slug}", a.Get).Methods("GET")
-
-	r.HandleFunc("/vendor/", a.Delete).Methods("DELETE")
+	// DELETE
 	r.HandleFunc("/vendor/{slug}", a.Delete).Methods("DELETE")
-
-	// FIXME: only for development
-	r.HandleFunc("/vendors/", a.GetAll).Methods("GET")
 }
 
 // Create -
@@ -42,7 +41,7 @@ func (a *VendorAPI) Create(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(vendor)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(Error(err))
+		w.Write(Error(errors.New("failed to decode JSON payload")))
 		return
 	}
 
@@ -64,13 +63,13 @@ func (a *VendorAPI) Delete(w http.ResponseWriter, r *http.Request) {
 		w.Write(Error(errors.New("slug missing")))
 		return
 	}
-	if err := a.model.Delete(&model.Vendor{Slug: vars["slug"]}); err != nil {
+	err := a.model.Delete(&model.Vendor{Slug: vars["slug"]})
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(Error(err))
-		return
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write(Error(nil))
+	w.Write(Error(err))
 	return
 }
 
@@ -84,19 +83,19 @@ func (a *VendorAPI) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	// slug from URL > slug from body
-	if vars["slug"] != "" {
-		vendor.Slug = vars["slug"]
-	}
-
-	if err = a.model.Update(vendor); err != nil {
+	if vars["slug"] == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(Error(err))
+		w.Write(Error(errors.New("slug missing")))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(vendor)
+	err = a.model.Update(&model.Vendor{Slug: vars["slug"]}, vendor)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Write(Error(err))
 }
 
 // Get -

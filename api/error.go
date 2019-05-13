@@ -12,11 +12,10 @@ type e struct {
 
 // Error wraps an error in a struct to encode in JSON
 func Error(err error) []byte {
+	t := &e{Code: 0, Text: "Success"}
 	if err != nil {
-		t := &e{Code: 1, Text: fmt.Sprintf("%v", err)}
-		j, _ := json.Marshal(t)
-		return j
+		t = &e{Code: 1, Text: fmt.Sprintf("%v", err)}
 	}
-	// FIXME: Return nothing instead?
-	return []byte("{}")
+	j, _ := json.Marshal(t)
+	return j
 }

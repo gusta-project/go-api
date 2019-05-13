@@ -33,15 +33,12 @@ func (m *Manager) NewVendorManager() *VendorManager {
 }
 
 func (v *Vendor) String() string {
-	return v.slug()
+	return v.Slug
 }
 
 // slug transparently populates vendor.Slug
 func (v *Vendor) slug() string {
-	if v.Slug == "" {
-		v.Slug = slug.Make(fmt.Sprintf("%s %s", v.Code, v.Name))
-	}
-	return v.Slug
+	return slug.Make(fmt.Sprintf("%s %s", v.Code, v.Name))
 }
 
 func (v *Vendor) uuid() string {
@@ -67,7 +64,7 @@ func (m *VendorManager) storeToCache(v *Vendor) {
 }
 
 func (m *VendorManager) findOne(v *Vendor) *gorm.DB {
-	return m.db.Model(v).Where("slug=?", v.slug())
+	return m.db.Model(v).Where("slug=?", v.Slug)
 }
 
 // Get -
@@ -121,9 +118,18 @@ func (m *VendorManager) Delete(v *Vendor) error {
 	return m.db.HandleError(m.findOne(v).Delete(v))
 }
 
-// Update -
-func (m *VendorManager) Update(v *Vendor) error {
-	err := m.db.HandleError(m.findOne(v).Update(v))
-	m.storeToCache(v)
+// Update vendor identified by s with values from v
+func (m *VendorManager) Update(s *Vendor, v *Vendor) error {
+	// FIXME: if s is not found aka no rows affected we don't get an error
+	err := m.db.HandleError(m.findOne(s).Update(v))
+	if err != nil {
+		return err
+	}
+	// Verify slug
+	v = m.Get(s)
+	newSlug := v.slug()
+	if newSlug != v.Slug { // changed => update
+		err = m.db.HandleError(m.findOne(s).Update(&Vendor{Slug: newSlug}))
+	}
 	return err
 }
