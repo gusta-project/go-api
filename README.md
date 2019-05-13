@@ -1,4 +1,4 @@
-# flavor2go Flavor API
+# go-api Flavor API
 
 Loosely based on [go-vue-starter](https://github.com/markcheno/go-vue-starter/)
 
@@ -20,7 +20,7 @@ yes | docker-compose rm && docker-compose up --build
 If you want to run the locally build go app do:
 
 ```sh
-go build && ./flavor2go -l 2999
+go build && ./go-api -l 2999
 ```
 
 This will listen on port 2999.
