@@ -23,7 +23,7 @@ If you want to run the locally build go app do:
 go build && ./go-api -l 2999
 ```
 
-This will listen on port 2999.
+This will listen on port 2999 alongside an already running docker container.
 
 ## development
 
